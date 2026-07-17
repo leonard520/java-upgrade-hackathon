@@ -23,6 +23,7 @@ AI_RESOURCE = "https://ai.azure.com"
 BACKUP_DIR = ".cloud-upgrade/backup"
 GITHUB_API_VERSION = "2026-03-10"
 GITHUB_ISSUE_PAGE_LIMIT = 20
+COMPLIANCE_LABEL = "compliance"
 
 
 def backup_paths(project_root: Path) -> tuple[Path, Path]:
@@ -301,7 +302,12 @@ def create_github_issue(project_root: Path, arguments: dict[str, Any]) -> str:
     else:
         raise RuntimeError("could not verify issue uniqueness within the first 2000 open issues")
 
-    created = github_api_request("POST", issues_url, token, {"title": title, "body": body})
+    created = github_api_request(
+        "POST",
+        issues_url,
+        token,
+        {"title": title, "body": body, "labels": [COMPLIANCE_LABEL]},
+    )
     if not isinstance(created, dict) or not created.get("html_url"):
         raise RuntimeError("GitHub create issue response did not include html_url")
     return f"created compliance issue #{created.get('number', '?')}: {created['html_url']}"
